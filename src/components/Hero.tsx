@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import fnbLogo from "@/assets/fnb-logo.png";
 
 const Hero = () => {
   return (
@@ -26,11 +27,25 @@ const Hero = () => {
           </span>
         </motion.div>
 
+        {/* Logo */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="mb-6"
+        >
+          <img 
+            src={fnbLogo} 
+            alt="FNB Founders Logo" 
+            className="w-24 h-24 md:w-32 md:h-32 mx-auto invert"
+          />
+        </motion.div>
+
         {/* Main heading */}
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
+          transition={{ duration: 0.6, delay: 0.15 }}
           className="font-display text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-6"
         >
           <span className="text-gradient">FNB FOUNDERS</span>
