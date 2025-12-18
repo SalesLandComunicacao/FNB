@@ -27,15 +27,8 @@ const Hero = () => {
           </span>
         </motion.div>
 
-        {/* Morphing 3D Logo */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6, delay: 0.1, ease: [0.25, 0.1, 0.25, 1] }}
-          className="mb-4"
-        >
-          <MorphingLogo />
-        </motion.div>
+        {/* Morphing 3D Logo - Now fullscreen fixed */}
+        <MorphingLogo />
 
         {/* Main heading */}
         <motion.h1

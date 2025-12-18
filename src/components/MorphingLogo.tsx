@@ -8,13 +8,15 @@ const MorphingLogo = () => {
     if (!containerRef.current) return;
 
     const container = containerRef.current;
-    const width = container.clientWidth;
-    const height = container.clientHeight;
+    
+    // Use viewport dimensions
+    const width = window.innerWidth;
+    const height = window.innerHeight;
 
     // Scene setup
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
-    camera.position.z = 4;
+    camera.position.z = 5;
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(width, height);
@@ -22,8 +24,8 @@ const MorphingLogo = () => {
     renderer.setClearColor(0x000000, 0);
     container.appendChild(renderer.domElement);
 
-    // Particle count
-    const particleCount = 1200;
+    // Increased particle count for full screen coverage
+    const particleCount = 2500;
 
     // Create chaos shape with continuous movement
     function createChaosShape(): Float32Array {
@@ -31,7 +33,7 @@ const MorphingLogo = () => {
       for (let i = 0; i < particleCount; i++) {
         const theta = Math.random() * Math.PI * 2;
         const phi = Math.random() * Math.PI;
-        const r = 0.3 + Math.random() * 1.2;
+        const r = 0.3 + Math.random() * 1.5;
 
         positions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
         positions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
@@ -49,7 +51,7 @@ const MorphingLogo = () => {
 
     const sizes = new Float32Array(particleCount);
     for (let i = 0; i < particleCount; i++) {
-      sizes[i] = 0.015 + Math.random() * 0.025;
+      sizes[i] = 0.012 + Math.random() * 0.03;
     }
     geometry.setAttribute("size", new THREE.BufferAttribute(sizes, 1));
 
@@ -58,22 +60,27 @@ const MorphingLogo = () => {
       uniforms: {
         uTime: { value: 0 },
         uSpread: { value: 0 },
+        uAspect: { value: width / height },
       },
       vertexShader: `
         attribute float size;
         uniform float uTime;
         uniform float uSpread;
+        uniform float uAspect;
         varying float vAlpha;
         
         void main() {
           vec3 pos = position;
           
-          // Spread particles based on scroll
-          float spreadFactor = 1.0 + uSpread * 8.0;
+          // Massive spread to cover entire viewport
+          float spreadFactor = 1.0 + uSpread * 25.0;
           pos *= spreadFactor;
           
+          // Spread horizontally more based on aspect ratio
+          pos.x *= 1.0 + uSpread * uAspect * 0.5;
+          
           // Add more chaos when spread
-          float chaosAmount = 0.08 + uSpread * 0.3;
+          float chaosAmount = 0.08 + uSpread * 0.5;
           
           // Continuous chaotic movement
           pos.x += sin(uTime * 1.5 + position.y * 3.0 + position.z * 2.0) * chaosAmount;
@@ -81,13 +88,13 @@ const MorphingLogo = () => {
           pos.z += sin(uTime * 1.8 + position.x * 2.5 + position.y * 2.0) * chaosAmount;
           
           // Additional turbulence
-          pos += sin(uTime * 2.5 + position * 4.0) * (0.03 + uSpread * 0.1);
+          pos += sin(uTime * 2.5 + position * 4.0) * (0.03 + uSpread * 0.15);
           
           vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
-          gl_PointSize = size * (300.0 / -mvPosition.z) * (1.0 + uSpread * 0.5);
+          gl_PointSize = size * (300.0 / -mvPosition.z) * (1.0 + uSpread * 0.3);
           gl_Position = projectionMatrix * mvPosition;
           
-          vAlpha = (0.6 + sin(uTime * 3.0 + position.x * 10.0) * 0.4) * (1.0 - uSpread * 0.3);
+          vAlpha = (0.6 + sin(uTime * 3.0 + position.x * 10.0) * 0.4) * (1.0 - uSpread * 0.2);
         }
       `,
       fragmentShader: `
@@ -135,9 +142,9 @@ const MorphingLogo = () => {
       const linePos = lineGeometry.attributes.position.array as Float32Array;
       let lineIndex = 0;
 
-      const connectionDistance = 0.5 + scrollSpread * 2;
+      const connectionDistance = 0.5 + scrollSpread * 3;
 
-      for (let i = 0; i < Math.min(particleCount, 150); i++) {
+      for (let i = 0; i < Math.min(particleCount, 200); i++) {
         const i1 = Math.floor(Math.random() * particleCount);
         const i2 = Math.floor(Math.random() * particleCount);
 
@@ -157,14 +164,13 @@ const MorphingLogo = () => {
       }
 
       lineGeometry.attributes.position.needsUpdate = true;
-      lineMaterial.opacity = 0.1 * (1 - scrollSpread * 0.7);
+      lineMaterial.opacity = 0.1 * (1 - scrollSpread * 0.8);
     }
 
     // Global mouse move
     const handleGlobalMouseMove = (e: MouseEvent) => {
-      const rect = container.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight / 2;
       
       const deltaX = e.clientX - centerX;
       const deltaY = e.clientY - centerY;
@@ -176,7 +182,7 @@ const MorphingLogo = () => {
     // Scroll handler - spread particles
     const handleScroll = () => {
       const scrollY = window.scrollY;
-      const maxScroll = 800; // Spread fully within first 800px of scroll
+      const maxScroll = 600; // Spread fully within first 600px of scroll
       scrollSpread = Math.min(scrollY / maxScroll, 1);
     };
 
@@ -196,8 +202,8 @@ const MorphingLogo = () => {
       lines.rotation.x = points.rotation.x;
       lines.rotation.y = points.rotation.y;
 
-      // Adjust camera based on spread
-      camera.position.z = 4 + scrollSpread * 3;
+      // Adjust camera based on spread - zoom out more
+      camera.position.z = 5 + scrollSpread * 8;
 
       updateLines();
       renderer.render(scene, camera);
@@ -211,11 +217,12 @@ const MorphingLogo = () => {
 
     // Resize handler
     const handleResize = () => {
-      const newWidth = container.clientWidth;
-      const newHeight = container.clientHeight;
+      const newWidth = window.innerWidth;
+      const newHeight = window.innerHeight;
       camera.aspect = newWidth / newHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(newWidth, newHeight);
+      (material.uniforms.uAspect as { value: number }).value = newWidth / newHeight;
     };
     window.addEventListener("resize", handleResize);
 
@@ -239,7 +246,7 @@ const MorphingLogo = () => {
   return (
     <div
       ref={containerRef}
-      className="w-48 h-48 md:w-56 md:h-56 lg:w-64 lg:h-64 mx-auto"
+      className="fixed inset-0 w-screen h-screen pointer-events-none z-0"
     />
   );
 };
