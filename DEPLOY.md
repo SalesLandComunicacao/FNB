@@ -32,8 +32,8 @@ Se ainda não criou, execute o SQL de `supabase-schema.sql` no SQL Editor do Sup
 4. Configure as variáveis de ambiente:
 
 ```env
-SUPABASE_URL=https://onykaepnlweqpljqlzih.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9ueWthZXBubHdlcXBsanFsemloIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MzE0NTk2MiwiZXhwIjoyMDc4NzIxOTYyfQ.uyL-8XoymTtFy9kXPL9rRELNGLGfiQFyXT0fu0x3u14
+SUPABASE_URL=sua_url_do_supabase
+SUPABASE_SERVICE_ROLE_KEY=sua_chave_service_role
 ```
 
 5. Clique em **"Deploy"**
