@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 import MorphingLogo from "./MorphingLogo";
 
 const Hero = () => {
@@ -14,7 +15,7 @@ const Hero = () => {
       {/* Glow orb */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[400px] h-[400px] rounded-full bg-foreground/5 blur-[100px] animate-glow-pulse" />
 
-      <div className="relative z-10 container px-6 text-center">
+      <div className="relative z-50 container px-6 text-center">
         {/* Badge */}
         <motion.div
           initial={{ opacity: 0, y: 15 }}
@@ -69,9 +70,11 @@ const Hero = () => {
           transition={{ duration: 0.5, delay: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
           className="flex flex-col items-center gap-3"
         >
-          <Button variant="hero" size="xl" className="group">
-            Aplicar para o FNB Founders
-            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+          <Button variant="hero" size="xl" className="group" asChild>
+            <Link to="/aplicar">
+              Aplicar para o FNB Founders
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+            </Link>
           </Button>
           <span className="text-xs text-muted-foreground">
             Acesso imediato ao Ecossistema e Templates

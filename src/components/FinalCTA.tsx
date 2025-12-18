@@ -1,13 +1,14 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const FinalCTA = () => {
   return (
     <section className="relative py-16 md:py-20 overflow-hidden">
       <div className="absolute inset-0 neural-pattern opacity-10" />
       
-      <div className="container px-6">
+      <div className="relative z-10 container px-6">
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -71,9 +72,11 @@ const FinalCTA = () => {
             <p className="text-foreground/80 font-display text-lg">
               Bem-vindo ao FNB FOUNDERS.
             </p>
-            <Button variant="hero" size="xl" className="group">
-              Garantir Acesso
-              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+            <Button variant="hero" size="xl" className="group" asChild>
+              <Link to="/aplicar">
+                Garantir Acesso
+                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+              </Link>
             </Button>
           </motion.div>
         </motion.div>

@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 
 const Header = () => {
@@ -49,8 +50,10 @@ const Header = () => {
 
           {/* CTA */}
           <div className="hidden md:block">
-            <Button variant="cta" size="sm">
-              Aplicar Agora
+            <Button variant="cta" size="sm" asChild>
+              <Link to="/aplicar">
+                Aplicar Agora
+              </Link>
             </Button>
           </div>
 
@@ -84,8 +87,10 @@ const Header = () => {
               <a href="#pricing" className="text-foreground/60 hover:text-foreground transition-colors py-2">
                 Investimento
               </a>
-              <Button variant="cta" className="mt-2">
-                Aplicar Agora
+              <Button variant="cta" className="mt-2" asChild>
+                <Link to="/aplicar">
+                  Aplicar Agora
+                </Link>
               </Button>
             </nav>
           </motion.div>

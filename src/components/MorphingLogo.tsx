@@ -313,7 +313,7 @@ const MorphingLogo = () => {
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 w-screen h-screen pointer-events-auto z-0"
+      className="fixed inset-0 w-screen h-screen pointer-events-none -z-10"
     />
   );
 };
