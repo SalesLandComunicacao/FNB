@@ -25,43 +25,7 @@ const MorphingLogo = () => {
     // Particle count
     const particleCount = 1200;
 
-    // Create arrow shape - more detailed like original
-    function createArrowShape(): Float32Array {
-      const positions = new Float32Array(particleCount * 3);
-      for (let i = 0; i < particleCount; i++) {
-        const t = i / particleCount;
-        let x, y, z;
-
-        if (t < 0.5) {
-          // Main body - elongated cone
-          const coneT = t / 0.5;
-          const radius = (1 - coneT) * 0.4;
-          const angle = Math.random() * Math.PI * 2;
-          x = -1.5 + coneT * 3;
-          y = Math.cos(angle) * radius * (Math.random() * 0.5 + 0.5);
-          z = Math.sin(angle) * radius * (Math.random() * 0.5 + 0.5);
-        } else if (t < 0.75) {
-          // Upper wing
-          const wingT = (t - 0.5) / 0.25;
-          x = 0.5 - wingT * 1.2;
-          y = wingT * 1.0 + (Math.random() - 0.5) * 0.15;
-          z = (Math.random() - 0.5) * 0.2;
-        } else {
-          // Lower wing
-          const wingT = (t - 0.75) / 0.25;
-          x = 0.5 - wingT * 1.2;
-          y = -wingT * 1.0 + (Math.random() - 0.5) * 0.15;
-          z = (Math.random() - 0.5) * 0.2;
-        }
-
-        positions[i * 3] = x;
-        positions[i * 3 + 1] = y;
-        positions[i * 3 + 2] = z;
-      }
-      return positions;
-    }
-
-    // Create chaos shape
+    // Create chaos shape with continuous movement
     function createChaosShape(): Float32Array {
       const positions = new Float32Array(particleCount * 3);
       for (let i = 0; i < particleCount; i++) {
@@ -76,13 +40,12 @@ const MorphingLogo = () => {
       return positions;
     }
 
-    // Only 2 shapes: arrow and chaos
-    const shapes = [createArrowShape(), createChaosShape()];
+    // Only chaos shape
+    const chaosPositions = createChaosShape();
 
     // Create particles
     const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute("position", new THREE.BufferAttribute(shapes[0].slice(), 3));
-    geometry.setAttribute("targetPosition", new THREE.BufferAttribute(shapes[0].slice(), 3));
+    geometry.setAttribute("position", new THREE.BufferAttribute(chaosPositions.slice(), 3));
 
     const sizes = new Float32Array(particleCount);
     for (let i = 0; i < particleCount; i++) {
@@ -90,23 +53,26 @@ const MorphingLogo = () => {
     }
     geometry.setAttribute("size", new THREE.BufferAttribute(sizes, 1));
 
-    // Custom shader material
+    // Custom shader material with enhanced movement
     const material = new THREE.ShaderMaterial({
       uniforms: {
         uTime: { value: 0 },
-        uMorphProgress: { value: 0 },
       },
       vertexShader: `
-        attribute vec3 targetPosition;
         attribute float size;
         uniform float uTime;
-        uniform float uMorphProgress;
         varying float vAlpha;
         
         void main() {
-          vec3 pos = mix(position, targetPosition, uMorphProgress);
-          pos += sin(uTime * 2.0 + position.x * 5.0) * 0.015;
-          pos += cos(uTime * 1.5 + position.y * 5.0) * 0.015;
+          vec3 pos = position;
+          
+          // Continuous chaotic movement
+          pos.x += sin(uTime * 1.5 + position.y * 3.0 + position.z * 2.0) * 0.08;
+          pos.y += cos(uTime * 1.2 + position.x * 3.0 + position.z * 2.5) * 0.08;
+          pos.z += sin(uTime * 1.8 + position.x * 2.5 + position.y * 2.0) * 0.08;
+          
+          // Additional turbulence
+          pos += sin(uTime * 2.5 + position * 4.0) * 0.03;
           
           vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
           gl_PointSize = size * (300.0 / -mvPosition.z);
@@ -149,10 +115,6 @@ const MorphingLogo = () => {
     scene.add(lines);
 
     // State
-    let morphProgress = 0;
-    let currentShape = 0;
-    let targetShape = 0;
-    let autoMorphTimer = 0;
     let targetRotationX = 0;
     let targetRotationY = 0;
     let scrollTilt = 0;
@@ -186,14 +148,7 @@ const MorphingLogo = () => {
       lineGeometry.attributes.position.needsUpdate = true;
     }
 
-    // Morph to shape
-    function morphToShape(shapeIndex: number) {
-      targetShape = shapeIndex;
-      const targetPositions = shapes[shapeIndex];
-      geometry.setAttribute("targetPosition", new THREE.BufferAttribute(targetPositions.slice(), 3));
-    }
-
-    // Mouse move handler - make arrow look at cursor
+    // Mouse move handler
     const handleMouseMove = (e: MouseEvent) => {
       const rect = container.getBoundingClientRect();
       const mouseX = ((e.clientX - rect.left) / rect.width) * 2 - 1;
@@ -233,30 +188,6 @@ const MorphingLogo = () => {
 
       // Update uniforms
       (material.uniforms.uTime as { value: number }).value = time;
-
-      // Smooth morph
-      if (currentShape !== targetShape) {
-        morphProgress += 0.015;
-        if (morphProgress >= 1) {
-          morphProgress = 0;
-          currentShape = targetShape;
-          const currentPos = geometry.attributes.position.array as Float32Array;
-          const targetPos = geometry.attributes.targetPosition.array as Float32Array;
-          for (let i = 0; i < currentPos.length; i++) {
-            currentPos[i] = targetPos[i];
-          }
-          geometry.attributes.position.needsUpdate = true;
-        }
-      }
-      (material.uniforms.uMorphProgress as { value: number }).value = morphProgress;
-
-      // Auto morph timer - switch between arrow (0) and chaos (1)
-      autoMorphTimer += 0.016;
-      if (autoMorphTimer > 3.5) {
-        autoMorphTimer = 0;
-        const nextShape = (targetShape + 1) % 2;
-        morphToShape(nextShape);
-      }
 
       // Smooth rotation towards target (arrow following cursor)
       points.rotation.x += (targetRotationX + scrollTilt - points.rotation.x) * 0.08;
