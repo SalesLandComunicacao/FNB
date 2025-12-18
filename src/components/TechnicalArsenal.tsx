@@ -31,7 +31,7 @@ const TechnicalArsenal = () => {
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
-    <section ref={ref} className="relative py-32 overflow-hidden">
+    <section ref={ref} className="relative py-16 md:py-20 overflow-hidden">
       <div className="absolute inset-0 grid-pattern opacity-20" />
       
       <div className="container px-6">

@@ -5,7 +5,7 @@ import MorphingLogo from "./MorphingLogo";
 
 const Hero = () => {
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden pt-20 pb-12">
       {/* Background effects */}
       <div className="absolute inset-0 grid-pattern opacity-30" />
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background" />
@@ -17,10 +17,10 @@ const Hero = () => {
       <div className="relative z-10 container px-6 text-center">
         {/* Badge */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="mb-8"
+          transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
+          className="mb-6"
         >
           <span className="inline-block px-4 py-2 text-xs uppercase tracking-[0.3em] text-muted-foreground border border-border rounded-full">
             Isso não é para curiosos
@@ -29,30 +29,30 @@ const Hero = () => {
 
         {/* Morphing 3D Logo */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
+          initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, delay: 0.1 }}
-          className="mb-6"
+          transition={{ duration: 0.6, delay: 0.1, ease: [0.25, 0.1, 0.25, 1] }}
+          className="mb-4"
         >
           <MorphingLogo />
         </motion.div>
 
         {/* Main heading */}
         <motion.h1
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.15 }}
-          className="font-display text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-6"
+          transition={{ duration: 0.5, delay: 0.15, ease: [0.25, 0.1, 0.25, 1] }}
+          className="font-display text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-4"
         >
           <span className="text-gradient">FNB FOUNDERS</span>
         </motion.h1>
 
         {/* Subtitle */}
         <motion.p
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="font-display text-lg md:text-xl lg:text-2xl text-muted-foreground uppercase tracking-[0.2em] mb-8"
+          transition={{ duration: 0.5, delay: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
+          className="font-display text-lg md:text-xl lg:text-2xl text-muted-foreground uppercase tracking-[0.2em] mb-6"
         >
           Uma trilha de elite para empreendedores
           <br className="hidden md:block" /> da era da inteligência artificial
@@ -60,10 +60,10 @@ const Hero = () => {
 
         {/* Description */}
         <motion.p
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="max-w-3xl mx-auto text-foreground/70 text-base md:text-lg leading-relaxed mb-12"
+          transition={{ duration: 0.5, delay: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
+          className="max-w-3xl mx-auto text-foreground/70 text-base md:text-lg leading-relaxed mb-8"
         >
           De Prestador de Serviço a Founder. A única trilha de alavancagem que importa 
           <span className="text-foreground font-medium"> PRA VOCÊ</span> nos próximos 2 anos.
@@ -71,10 +71,10 @@ const Hero = () => {
 
         {/* CTA */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="flex flex-col items-center gap-4"
+          transition={{ duration: 0.5, delay: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
+          className="flex flex-col items-center gap-3"
         >
           <Button variant="hero" size="xl" className="group">
             Aplicar para o FNB Founders

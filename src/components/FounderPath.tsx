@@ -34,7 +34,7 @@ const FounderPath = () => {
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
-    <section ref={ref} className="relative py-32 overflow-hidden">
+    <section ref={ref} className="relative py-16 md:py-20 overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 bg-gradient-to-b from-background via-card/30 to-background" />
       
@@ -44,7 +44,7 @@ const FounderPath = () => {
           initial={{ opacity: 0, y: 40 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8 }}
-          className="text-center mb-20"
+          className="text-center mb-12"
         >
           <span className="inline-block text-xs uppercase tracking-[0.3em] text-muted-foreground mb-4">
             A Metodologia
@@ -64,7 +64,7 @@ const FounderPath = () => {
           <div className="absolute left-8 md:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-border via-foreground/30 to-border" />
 
           {/* Phases */}
-          <div className="space-y-24">
+          <div className="space-y-16">
             {phases.map((phase, index) => (
               <motion.div
                 key={phase.number}
