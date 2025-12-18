@@ -25,7 +25,7 @@ const MorphingLogo = () => {
     container.appendChild(renderer.domElement);
 
     // Increased particle count for full screen coverage
-    const particleCount = 2500;
+    const particleCount = 4000;
 
     // Create chaos shape with continuous movement
     function createChaosShape(): Float32Array {
@@ -33,7 +33,7 @@ const MorphingLogo = () => {
       for (let i = 0; i < particleCount; i++) {
         const theta = Math.random() * Math.PI * 2;
         const phi = Math.random() * Math.PI;
-        const r = 0.3 + Math.random() * 1.5;
+        const r = 0.3 + Math.random() * 1.8;
 
         positions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
         positions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
@@ -51,22 +51,26 @@ const MorphingLogo = () => {
 
     const sizes = new Float32Array(particleCount);
     for (let i = 0; i < particleCount; i++) {
-      sizes[i] = 0.012 + Math.random() * 0.03;
+      sizes[i] = 0.01 + Math.random() * 0.025;
     }
     geometry.setAttribute("size", new THREE.BufferAttribute(sizes, 1));
 
-    // Custom shader material with enhanced movement and scroll-based spread
+    // Custom shader material with mouse attraction
     const material = new THREE.ShaderMaterial({
       uniforms: {
         uTime: { value: 0 },
         uSpread: { value: 0 },
         uAspect: { value: width / height },
+        uMouse: { value: new THREE.Vector3(0, 0, 0) },
+        uAttraction: { value: 0 },
       },
       vertexShader: `
         attribute float size;
         uniform float uTime;
         uniform float uSpread;
         uniform float uAspect;
+        uniform vec3 uMouse;
+        uniform float uAttraction;
         varying float vAlpha;
         
         void main() {
@@ -90,8 +94,24 @@ const MorphingLogo = () => {
           // Additional turbulence
           pos += sin(uTime * 2.5 + position * 4.0) * (0.03 + uSpread * 0.15);
           
+          // Mouse attraction
+          if (uAttraction > 0.0) {
+            vec3 toMouse = uMouse - pos;
+            float dist = length(toMouse);
+            float attractionStrength = uAttraction * 2.0 / (1.0 + dist * 0.5);
+            pos += normalize(toMouse) * attractionStrength * 0.3;
+          }
+          
+          // Subtle mouse hover attraction (always active)
+          vec3 hoverToMouse = uMouse - pos;
+          float hoverDist = length(hoverToMouse);
+          if (hoverDist < 8.0) {
+            float hoverStrength = (1.0 - hoverDist / 8.0) * 0.15;
+            pos += normalize(hoverToMouse) * hoverStrength;
+          }
+          
           vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
-          gl_PointSize = size * (300.0 / -mvPosition.z) * (1.0 + uSpread * 0.3);
+          gl_PointSize = size * (300.0 / -mvPosition.z) * (1.0 + uSpread * 0.3 + uAttraction * 0.2);
           gl_Position = projectionMatrix * mvPosition;
           
           vAlpha = (0.6 + sin(uTime * 3.0 + position.x * 10.0) * 0.4) * (1.0 - uSpread * 0.2);
@@ -124,7 +144,7 @@ const MorphingLogo = () => {
     const lineMaterial = new THREE.LineBasicMaterial({
       color: 0xffffff,
       transparent: true,
-      opacity: 0.1,
+      opacity: 0.08,
     });
 
     const lines = new THREE.LineSegments(lineGeometry, lineMaterial);
@@ -135,6 +155,10 @@ const MorphingLogo = () => {
     let targetRotationY = 0;
     let scrollSpread = 0;
     let animationId = 0;
+    let mouseX = 0;
+    let mouseY = 0;
+    let isMouseDown = false;
+    let attractionStrength = 0;
 
     // Update lines based on spread
     function updateLines() {
@@ -144,7 +168,7 @@ const MorphingLogo = () => {
 
       const connectionDistance = 0.5 + scrollSpread * 3;
 
-      for (let i = 0; i < Math.min(particleCount, 200); i++) {
+      for (let i = 0; i < Math.min(particleCount, 250); i++) {
         const i1 = Math.floor(Math.random() * particleCount);
         const i2 = Math.floor(Math.random() * particleCount);
 
@@ -164,25 +188,52 @@ const MorphingLogo = () => {
       }
 
       lineGeometry.attributes.position.needsUpdate = true;
-      lineMaterial.opacity = 0.1 * (1 - scrollSpread * 0.8);
+      lineMaterial.opacity = 0.08 * (1 - scrollSpread * 0.7);
+    }
+
+    // Convert screen coordinates to 3D world position
+    function screenToWorld(screenX: number, screenY: number): THREE.Vector3 {
+      const vector = new THREE.Vector3();
+      vector.x = (screenX / window.innerWidth) * 2 - 1;
+      vector.y = -(screenY / window.innerHeight) * 2 + 1;
+      vector.z = 0.5;
+      
+      vector.unproject(camera);
+      const dir = vector.sub(camera.position).normalize();
+      const distance = -camera.position.z / dir.z;
+      const pos = camera.position.clone().add(dir.multiplyScalar(distance));
+      
+      return pos;
     }
 
     // Global mouse move
     const handleGlobalMouseMove = (e: MouseEvent) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      
       const centerX = window.innerWidth / 2;
       const centerY = window.innerHeight / 2;
       
       const deltaX = e.clientX - centerX;
       const deltaY = e.clientY - centerY;
       
-      targetRotationY = Math.atan2(deltaX, 500) * 2;
-      targetRotationX = Math.atan2(-deltaY, 500) * 2;
+      targetRotationY = Math.atan2(deltaX, 500) * 1.5;
+      targetRotationX = Math.atan2(-deltaY, 500) * 1.5;
+    };
+
+    // Mouse down/up handlers
+    const handleMouseDown = () => {
+      isMouseDown = true;
+    };
+
+    const handleMouseUp = () => {
+      isMouseDown = false;
     };
 
     // Scroll handler - spread particles
     const handleScroll = () => {
       const scrollY = window.scrollY;
-      const maxScroll = 600; // Spread fully within first 600px of scroll
+      const maxScroll = 600;
       scrollSpread = Math.min(scrollY / maxScroll, 1);
     };
 
@@ -192,13 +243,25 @@ const MorphingLogo = () => {
       animationId = requestAnimationFrame(animate);
       time += 0.016;
 
+      // Update attraction strength smoothly
+      if (isMouseDown) {
+        attractionStrength = Math.min(attractionStrength + 0.03, 1.5);
+      } else {
+        attractionStrength = Math.max(attractionStrength - 0.05, 0);
+      }
+
+      // Convert mouse to world position
+      const mouseWorld = screenToWorld(mouseX, mouseY);
+
       // Update uniforms
       (material.uniforms.uTime as { value: number }).value = time;
       (material.uniforms.uSpread as { value: number }).value = scrollSpread;
+      (material.uniforms.uMouse as { value: THREE.Vector3 }).value.copy(mouseWorld);
+      (material.uniforms.uAttraction as { value: number }).value = attractionStrength;
 
       // Smooth rotation towards target
-      points.rotation.x += (targetRotationX - points.rotation.x) * 0.08;
-      points.rotation.y += (targetRotationY - points.rotation.y) * 0.08;
+      points.rotation.x += (targetRotationX - points.rotation.x) * 0.06;
+      points.rotation.y += (targetRotationY - points.rotation.y) * 0.06;
       lines.rotation.x = points.rotation.x;
       lines.rotation.y = points.rotation.y;
 
@@ -213,6 +276,8 @@ const MorphingLogo = () => {
 
     // Event listeners
     window.addEventListener("mousemove", handleGlobalMouseMove);
+    window.addEventListener("mousedown", handleMouseDown);
+    window.addEventListener("mouseup", handleMouseUp);
     window.addEventListener("scroll", handleScroll);
 
     // Resize handler
@@ -230,6 +295,8 @@ const MorphingLogo = () => {
     return () => {
       cancelAnimationFrame(animationId);
       window.removeEventListener("mousemove", handleGlobalMouseMove);
+      window.removeEventListener("mousedown", handleMouseDown);
+      window.removeEventListener("mouseup", handleMouseUp);
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("resize", handleResize);
       renderer.dispose();
@@ -246,7 +313,7 @@ const MorphingLogo = () => {
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 w-screen h-screen pointer-events-none z-0"
+      className="fixed inset-0 w-screen h-screen pointer-events-auto z-0"
     />
   );
 };

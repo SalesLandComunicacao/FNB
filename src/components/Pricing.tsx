@@ -1,6 +1,4 @@
 import { motion } from "framer-motion";
-import { useInView } from "framer-motion";
-import { useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Check, ArrowRight } from "lucide-react";
 
@@ -12,20 +10,18 @@ const benefits = [
 ];
 
 const Pricing = () => {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
-
   return (
-    <section ref={ref} className="relative py-16 md:py-20 overflow-hidden">
+    <section className="relative py-16 md:py-20 overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-b from-background via-card/30 to-background" />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-foreground/5 blur-[150px]" />
       
       <div className="relative container px-6">
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8 }}
-          className="text-center mb-16"
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
+          className="text-center mb-12"
         >
           <span className="inline-block text-xs uppercase tracking-[0.3em] text-muted-foreground mb-4">
             Join FNB Founders
@@ -42,18 +38,26 @@ const Pricing = () => {
         {/* Benefits */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.2 }}
           className="max-w-md mx-auto mb-12"
         >
           <ul className="space-y-4">
-            {benefits.map((benefit) => (
-              <li key={benefit} className="flex items-center gap-3">
+            {benefits.map((benefit, index) => (
+              <motion.li 
+                key={benefit} 
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: 0.3 + index * 0.1 }}
+                className="flex items-center gap-3"
+              >
                 <div className="w-5 h-5 rounded-full bg-foreground/10 flex items-center justify-center flex-shrink-0">
                   <Check className="w-3 h-3 text-foreground" />
                 </div>
                 <span className="text-foreground/80">{benefit}</span>
-              </li>
+              </motion.li>
             ))}
           </ul>
         </motion.div>
@@ -62,9 +66,10 @@ const Pricing = () => {
         <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
           {/* Monthly */}
           <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.3 }}
+            initial={{ opacity: 0, x: -40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
             className="p-8 border border-border rounded-xl bg-card/30 hover:bg-card/50 transition-colors duration-300"
           >
             <div className="text-xs uppercase tracking-[0.2em] text-muted-foreground mb-2">
@@ -83,9 +88,10 @@ const Pricing = () => {
 
           {/* Annual - Featured */}
           <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.4 }}
+            initial={{ opacity: 0, x: 40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
             className="relative p-8 border border-foreground/30 rounded-xl bg-foreground/5 glow"
           >
             <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-foreground text-background text-xs uppercase tracking-[0.15em] font-semibold rounded-full">

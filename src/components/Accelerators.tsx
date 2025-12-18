@@ -1,6 +1,4 @@
 import { motion } from "framer-motion";
-import { useInView } from "framer-motion";
-import { useRef } from "react";
 import { Zap, Target, MessageCircle, Send } from "lucide-react";
 
 const accelerators = [
@@ -27,20 +25,18 @@ const accelerators = [
 ];
 
 const Accelerators = () => {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
-
   return (
-    <section ref={ref} className="relative py-16 md:py-20 overflow-hidden">
+    <section className="relative py-16 md:py-20 overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-b from-background via-card/20 to-background" />
       
       <div className="relative container px-6">
         <div className="max-w-5xl mx-auto">
           <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8 }}
-            className="mb-16"
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
+            className="mb-12"
           >
             <span className="inline-block text-xs uppercase tracking-[0.3em] text-muted-foreground mb-4">
               ROI Imediato
@@ -58,9 +54,10 @@ const Accelerators = () => {
             {accelerators.map((item, index) => (
               <motion.div
                 key={item.title}
-                initial={{ opacity: 0, y: 30 }}
-                animate={isInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
+                initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.5, delay: index * 0.1, ease: [0.25, 0.1, 0.25, 1] }}
                 className="group p-6 border border-border/50 rounded-lg bg-card/20 hover:bg-card/50 hover:border-foreground/20 transition-all duration-300"
               >
                 <div className="w-10 h-10 rounded-md bg-foreground/5 flex items-center justify-center mb-4 group-hover:bg-foreground group-hover:text-background transition-all duration-300">
