@@ -1,23 +1,19 @@
 import { motion } from "framer-motion";
-import { useInView } from "framer-motion";
-import { useRef } from "react";
 import ivesImage from "@/assets/ives-gabriel.jpeg";
 
 const FounderProfile = () => {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
-
   return (
-    <section ref={ref} className="relative py-16 md:py-20 overflow-hidden">
+    <section className="relative py-16 md:py-20 overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-b from-background via-card/20 to-background" />
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
       
       <div className="relative container px-6">
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8 }}
-          className="text-center mb-16"
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
+          className="text-center mb-12"
         >
           <span className="inline-block text-xs uppercase tracking-[0.3em] text-muted-foreground mb-4">
             O Arquiteto
@@ -30,9 +26,10 @@ const FounderProfile = () => {
         <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-12 items-center">
           {/* Image */}
           <motion.div
-            initial={{ opacity: 0, x: -40 }}
-            animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.8, delay: 0.2 }}
+            initial={{ opacity: 0, x: -50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
             className="relative"
           >
             <div className="relative aspect-[3/4] overflow-hidden rounded-xl">
@@ -52,9 +49,10 @@ const FounderProfile = () => {
 
           {/* Content */}
           <motion.div
-            initial={{ opacity: 0, x: 40 }}
-            animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.8, delay: 0.3 }}
+            initial={{ opacity: 0, x: 50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
           >
             <div className="mb-6">
               <h3 className="font-display text-3xl md:text-4xl font-bold mb-2">
@@ -91,7 +89,13 @@ const FounderProfile = () => {
             </div>
 
             {/* Stats */}
-            <div className="mt-8 pt-8 border-t border-border/50 grid grid-cols-3 gap-4">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              className="mt-8 pt-8 border-t border-border/50 grid grid-cols-3 gap-4"
+            >
               <div>
                 <div className="font-display text-2xl font-bold text-gradient">5+</div>
                 <div className="text-xs text-muted-foreground uppercase tracking-wider">Anos de Exp.</div>
@@ -104,7 +108,7 @@ const FounderProfile = () => {
                 <div className="font-display text-2xl font-bold text-gradient">R$ 500k</div>
                 <div className="text-xs text-muted-foreground uppercase tracking-wider">MRR</div>
               </div>
-            </div>
+            </motion.div>
 
             <p className="mt-8 text-foreground/60 text-sm italic">
               "Criou o FNB FOUNDERS com uma missão clara: abrir a caixa-preta de seus próprios 
