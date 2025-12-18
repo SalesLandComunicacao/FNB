@@ -53,32 +53,41 @@ const MorphingLogo = () => {
     }
     geometry.setAttribute("size", new THREE.BufferAttribute(sizes, 1));
 
-    // Custom shader material with enhanced movement
+    // Custom shader material with enhanced movement and scroll-based spread
     const material = new THREE.ShaderMaterial({
       uniforms: {
         uTime: { value: 0 },
+        uSpread: { value: 0 },
       },
       vertexShader: `
         attribute float size;
         uniform float uTime;
+        uniform float uSpread;
         varying float vAlpha;
         
         void main() {
           vec3 pos = position;
           
+          // Spread particles based on scroll
+          float spreadFactor = 1.0 + uSpread * 8.0;
+          pos *= spreadFactor;
+          
+          // Add more chaos when spread
+          float chaosAmount = 0.08 + uSpread * 0.3;
+          
           // Continuous chaotic movement
-          pos.x += sin(uTime * 1.5 + position.y * 3.0 + position.z * 2.0) * 0.08;
-          pos.y += cos(uTime * 1.2 + position.x * 3.0 + position.z * 2.5) * 0.08;
-          pos.z += sin(uTime * 1.8 + position.x * 2.5 + position.y * 2.0) * 0.08;
+          pos.x += sin(uTime * 1.5 + position.y * 3.0 + position.z * 2.0) * chaosAmount;
+          pos.y += cos(uTime * 1.2 + position.x * 3.0 + position.z * 2.5) * chaosAmount;
+          pos.z += sin(uTime * 1.8 + position.x * 2.5 + position.y * 2.0) * chaosAmount;
           
           // Additional turbulence
-          pos += sin(uTime * 2.5 + position * 4.0) * 0.03;
+          pos += sin(uTime * 2.5 + position * 4.0) * (0.03 + uSpread * 0.1);
           
           vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
-          gl_PointSize = size * (300.0 / -mvPosition.z);
+          gl_PointSize = size * (300.0 / -mvPosition.z) * (1.0 + uSpread * 0.5);
           gl_Position = projectionMatrix * mvPosition;
           
-          vAlpha = 0.6 + sin(uTime * 3.0 + position.x * 10.0) * 0.4;
+          vAlpha = (0.6 + sin(uTime * 3.0 + position.x * 10.0) * 0.4) * (1.0 - uSpread * 0.3);
         }
       `,
       fragmentShader: `
@@ -117,14 +126,16 @@ const MorphingLogo = () => {
     // State
     let targetRotationX = 0;
     let targetRotationY = 0;
-    let scrollTilt = 0;
+    let scrollSpread = 0;
     let animationId = 0;
 
-    // Update lines
+    // Update lines based on spread
     function updateLines() {
       const positions = geometry.attributes.position.array as Float32Array;
       const linePos = lineGeometry.attributes.position.array as Float32Array;
       let lineIndex = 0;
+
+      const connectionDistance = 0.5 + scrollSpread * 2;
 
       for (let i = 0; i < Math.min(particleCount, 150); i++) {
         const i1 = Math.floor(Math.random() * particleCount);
@@ -135,7 +146,7 @@ const MorphingLogo = () => {
         const dz = positions[i1 * 3 + 2] - positions[i2 * 3 + 2];
         const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
 
-        if (dist < 0.5 && lineIndex < linePositions.length - 6) {
+        if (dist < connectionDistance && lineIndex < linePositions.length - 6) {
           linePos[lineIndex++] = positions[i1 * 3];
           linePos[lineIndex++] = positions[i1 * 3 + 1];
           linePos[lineIndex++] = positions[i1 * 3 + 2];
@@ -146,20 +157,10 @@ const MorphingLogo = () => {
       }
 
       lineGeometry.attributes.position.needsUpdate = true;
+      lineMaterial.opacity = 0.1 * (1 - scrollSpread * 0.7);
     }
 
-    // Mouse move handler
-    const handleMouseMove = (e: MouseEvent) => {
-      const rect = container.getBoundingClientRect();
-      const mouseX = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-      const mouseY = -((e.clientY - rect.top) / rect.height) * 2 + 1;
-
-      // Arrow looks at cursor - calculate angle
-      targetRotationY = mouseX * 1.2;
-      targetRotationX = mouseY * 0.8;
-    };
-
-    // Global mouse move for when cursor is outside container
+    // Global mouse move
     const handleGlobalMouseMove = (e: MouseEvent) => {
       const rect = container.getBoundingClientRect();
       const centerX = rect.left + rect.width / 2;
@@ -168,16 +169,15 @@ const MorphingLogo = () => {
       const deltaX = e.clientX - centerX;
       const deltaY = e.clientY - centerY;
       
-      // Calculate angle to point arrow at cursor
       targetRotationY = Math.atan2(deltaX, 500) * 2;
       targetRotationX = Math.atan2(-deltaY, 500) * 2;
     };
 
-    // Scroll handler
+    // Scroll handler - spread particles
     const handleScroll = () => {
       const scrollY = window.scrollY;
-      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-      scrollTilt = (scrollY / Math.max(maxScroll, 1)) * 0.8;
+      const maxScroll = 800; // Spread fully within first 800px of scroll
+      scrollSpread = Math.min(scrollY / maxScroll, 1);
     };
 
     // Animation loop
@@ -188,12 +188,16 @@ const MorphingLogo = () => {
 
       // Update uniforms
       (material.uniforms.uTime as { value: number }).value = time;
+      (material.uniforms.uSpread as { value: number }).value = scrollSpread;
 
-      // Smooth rotation towards target (arrow following cursor)
-      points.rotation.x += (targetRotationX + scrollTilt - points.rotation.x) * 0.08;
+      // Smooth rotation towards target
+      points.rotation.x += (targetRotationX - points.rotation.x) * 0.08;
       points.rotation.y += (targetRotationY - points.rotation.y) * 0.08;
       lines.rotation.x = points.rotation.x;
       lines.rotation.y = points.rotation.y;
+
+      // Adjust camera based on spread
+      camera.position.z = 4 + scrollSpread * 3;
 
       updateLines();
       renderer.render(scene, camera);
