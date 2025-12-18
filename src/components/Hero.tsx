@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
-import fnbLogo from "@/assets/fnb-logo.png";
+import MorphingLogo from "./MorphingLogo";
 
 const Hero = () => {
   return (
@@ -27,18 +27,14 @@ const Hero = () => {
           </span>
         </motion.div>
 
-        {/* Logo */}
+        {/* Morphing 3D Logo */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8, delay: 0.1 }}
           className="mb-6"
         >
-          <img 
-            src={fnbLogo} 
-            alt="FNB Founders Logo" 
-            className="w-24 h-24 md:w-32 md:h-32 mx-auto invert"
-          />
+          <MorphingLogo />
         </motion.div>
 
         {/* Main heading */}
