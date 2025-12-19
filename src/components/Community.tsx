@@ -12,11 +12,11 @@ const features = [
     title: "Weekly Updates",
     description: "Calls semanais toda quarta-feira para dissecar as atualizações do mercado.",
   },
-  {
-    icon: Mic,
-    title: "Guest Speakers",
-    description: "Acesso a insights de players como Ives Gabriel, Bruno Falcão, Erick Pinheiro e Felipe Santos.",
-  },
+  // {
+  //   icon: Mic,
+  //   title: "Guest Speakers",
+  //   description: "Acesso a insights de players como Ives Gabriel, Bruno Falcão, Erick Pinheiro e Felipe Santos.",
+  // },
 ];
 
 const Community = () => {
